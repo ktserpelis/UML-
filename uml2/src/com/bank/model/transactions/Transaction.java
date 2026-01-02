@@ -1,7 +1,6 @@
 package com.bank.model.transactions;
 
 import com.bank.storage.Storable;
-import com.bank.storage.UnMarshalingException;
 
 import java.time.LocalDate;
 

@@ -1,6 +1,6 @@
 package com.bank.model.orders;
 
-import com.bank.patterns.bridge.TransferProtocol;
+import com.bank.transfer.TransferProtocol;
 import java.time.LocalDate;
 
 public class TransferOrder extends StandingOrder {

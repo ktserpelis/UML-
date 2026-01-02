@@ -3,7 +3,7 @@ package com.bank.model.transactions;
 
 import com.bank.managers.TransactionManager;
 import com.bank.model.accounts.Account;
-import com.bank.patterns.bridge.TransferProtocol;
+import com.bank.transfer.TransferProtocol;
 import com.bank.patterns.observer.TransactionEvent;
 import com.bank.storage.UnMarshalingException;
 

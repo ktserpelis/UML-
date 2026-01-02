@@ -5,7 +5,7 @@ import com.bank.model.accounts.BusinessAccount;
 import com.bank.model.accounts.PersonalAccount;
 import com.bank.model.bills.Bill;
 import com.bank.model.transactions.*;
-import com.bank.patterns.bridge.TransferProtocol;
+import com.bank.transfer.TransferProtocol;
 import com.bank.patterns.observer.Subject;
 import com.bank.patterns.observer.TransactionEvent;
 import com.bank.patterns.observer.TransactionObserver;

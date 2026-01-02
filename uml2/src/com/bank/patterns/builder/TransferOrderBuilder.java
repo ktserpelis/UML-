@@ -1,7 +1,7 @@
 package com.bank.patterns.builder;
 
 import com.bank.model.orders.TransferOrder;
-import com.bank.patterns.bridge.TransferProtocol;
+import com.bank.transfer.TransferProtocol;
 import java.time.LocalDate;
 
 public class TransferOrderBuilder {
