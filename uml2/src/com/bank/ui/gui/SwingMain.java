@@ -1,12 +1,11 @@
 package com.bank.ui.gui;
 
-import com.bank.dao.factory.DAOFactory;
-import com.bank.dao.users.UserDAO;
+import com.bank.managers.UserManager;
 import com.bank.model.accounts.Account;
 import com.bank.model.bills.Bill;
+import com.bank.model.statements.Statement;
 import com.bank.model.transactions.Transaction;
 import com.bank.model.users.User;
-import com.bank.storage.StorableList;
 import com.bank.ui.gui.facade.BackendPort;
 import com.bank.ui.gui.facade.BackendPortImpl;
 import com.bank.ui.gui.facade.BankFacade;
@@ -26,19 +25,14 @@ public class SwingMain {
             frame.setSize(1100, 700);
             frame.setLayout(new BorderLayout());
 
-            AppSession<User, Account, Transaction, Bill> session = new AppSession<>();
-
-            // --- Load users from CSV (DAO) ---
-            DAOFactory daoFactory = DAOFactory.getDAOFactory(DAOFactory.FS);
-            UserDAO userDAO = daoFactory.getUserDAO();
-            StorableList<User> usersFromDao = userDAO.findAll();
+            AppSession<User, Account, Statement, Bill> session = new AppSession<>();
 
             // ✅ Works because StorableList extends ArrayList => is a List
-            session.setUsers(usersFromDao);
+            session.setUsers(UserManager.getInstance().getUsers());
 
             // --- Backend + Facade ---
-            BackendPort<User, Account, Transaction, Bill> backend = new BackendPortImpl();
-            BankFacade<User, Account, Transaction, Bill> facade = new BankFacadeImpl<>(backend);
+            BackendPort<User, Account, Statement, Bill> backend = new BackendPortImpl();
+            BankFacade<User, Account, Statement, Bill> facade = new BankFacadeImpl<>(backend);
 
             // --- Navigation + UI Factory ---
             Router router = new Router(frame);

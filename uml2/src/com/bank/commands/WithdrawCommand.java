@@ -22,6 +22,6 @@ public class WithdrawCommand implements Command {
 
     @Override
     public void execute() throws Exception {
-        TransactionManager.getInstance().executeWithdraw(account, date, amount, transactor, description);
+        TransactionManager.getInstance().executeWithdrawal(account, date, amount, transactor, description);
     }
 }

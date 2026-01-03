@@ -43,29 +43,29 @@ public class Transfer extends Transaction {
             
             boolean protocolSuccess = true;
             if (protocol != null) {
-                protocolSuccess = protocol.sendFunds(senderAccount, receiverAccount, amount);
+                //protocolSuccess = protocol.sendFunds(senderAccount, receiverAccount, amount);
             }
 
             if (protocolSuccess) {
                 senderAccount.withdraw(amount);
                 receiverAccount.deposit(amount);
     
-                // Sender Event (Debit)
-                TransactionEvent senderEvent = new TransactionEvent("Debit", date, amount, 
-                    "Transfer to: " + receiverAccount.getIban() + (protocol != null ? " via " + protocol.getProtocolName() : ""), 
-                    transactor, senderAccount.getIban(), 
-                    senderAccount.getIban(), receiverAccount.getIban(), senderAccount.getBalance());
-                TransactionManager.getInstance().notifyObservers(senderEvent);
-
-                // Receiver Event (Credit)
-                TransactionEvent receiverEvent = new TransactionEvent("Credit", date, amount, 
-                    "Transfer from: " + senderAccount.getIban() + (protocol != null ? " via " + protocol.getProtocolName() : ""), 
-                    transactor, receiverAccount.getIban(), 
-                    senderAccount.getIban(), receiverAccount.getIban(), receiverAccount.getBalance());
-                TransactionManager.getInstance().notifyObservers(receiverEvent);
+//                // Sender Event (Debit)
+//                TransactionEvent senderEvent = new TransactionEvent("Debit", date, amount,
+//                   //0 "Transfer to: " + receiverAccount.getIban() + (protocol != null ? " via " + protocol.getProtocolName() : ""),
+//                    transactor, senderAccount.getIban(),
+//                    senderAccount.getIban(), receiverAccount.getIban(), senderAccount.getBalance());
+//                TransactionManager.getInstance().notifyObservers(senderEvent);
+//
+//                // Receiver Event (Credit)
+//                TransactionEvent receiverEvent = new TransactionEvent("Credit", date, amount,
+//                    //"Transfer from: " + senderAccount.getIban() + (protocol != null ? " via " + protocol.getProtocolName() : ""),
+//                    transactor, receiverAccount.getIban(),
+//                    senderAccount.getIban(), receiverAccount.getIban(), receiverAccount.getBalance());
+//                TransactionManager.getInstance().notifyObservers(receiverEvent);
 
             } else {
-                System.out.println("Transfer failed by protocol " + (protocol != null ? protocol.getProtocolName() : "Unknown"));
+               // System.out.println("Transfer failed by protocol " + (protocol != null ? protocol.getProtocolName() : "Unknown"));
             }
 
         } catch (Exception e) {

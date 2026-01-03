@@ -24,7 +24,6 @@ public class DashboardController<User,Account,Transaction,Bill> {
             Account acc = requireAccount();
             double amount = Double.parseDouble(amountText);
             new DepositCommand<>(facade, acc, amount).execute();
-            refresh();
         } catch (Exception e) { showError(e.getMessage()); }
     }
 
@@ -33,7 +32,6 @@ public class DashboardController<User,Account,Transaction,Bill> {
             Account acc = requireAccount();
             double amount = Double.parseDouble(amountText);
             new WithdrawCommand<>(facade, acc, amount).execute();
-            refresh();
         } catch (Exception e) { showError(e.getMessage()); }
     }
 
@@ -42,7 +40,6 @@ public class DashboardController<User,Account,Transaction,Bill> {
             Account acc = requireAccount();
             double amount = Double.parseDouble(amountText);
             new TransferCommand<>(facade, acc, toIban, amount).execute();
-            refresh();
         } catch (Exception e) { showError(e.getMessage()); }
     }
 
@@ -50,7 +47,6 @@ public class DashboardController<User,Account,Transaction,Bill> {
         try {
             Account acc = requireAccount();
             new PayRfBillCommand<>(facade, acc, rfCode).execute();
-            refresh();
         } catch (Exception e) { showError(e.getMessage()); }
     }
 
@@ -59,10 +55,6 @@ public class DashboardController<User,Account,Transaction,Bill> {
             if (!isCompany) throw new IllegalArgumentException("Company-only action");
             new LoadIssuedBillsCommand<>(facade, session.getCurrentUser(), session).execute();
         } catch (Exception e) { showError(e.getMessage()); }
-    }
-
-    private void refresh() {
-        facade.onUserSelected(session.getCurrentUser(), session);
     }
 
     private Account requireAccount() {
