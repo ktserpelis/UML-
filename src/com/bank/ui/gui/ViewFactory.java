@@ -23,10 +23,9 @@ public class ViewFactory {
             boolean isAdmin =
                     current instanceof Admin
                             || (current != null && "admin".equalsIgnoreCase(current.toString()));
-            // ↑ αν έχεις getType() αντί για toString(), άλλαξέ το εκεί
 
             router.setRoot(
-                    dashboard(session, facade, isCompany, isAdmin)
+                    dashboard(session, facade, router, typeResolver, isCompany, isAdmin)
             );
         };
 
@@ -38,10 +37,16 @@ public class ViewFactory {
     DashboardPanel<User,Account,Transaction,Bill> dashboard(
             AppSession<User,Account,Transaction,Bill> session,
             BankFacade<User,Account,Transaction,Bill> facade,
+            Router router,
+            UserTypeResolver<User> typeResolver,
             boolean isCompany,
             boolean isAdmin) {
 
-        var controller = new DashboardController<>(session, facade, isCompany, isAdmin);
+        Runnable onLogoutShowLogin = () -> router.setRoot(
+                login(session, facade, router, typeResolver)
+        );
+
+        var controller = new DashboardController<>(session, facade, isCompany, isAdmin, onLogoutShowLogin);
         return new DashboardPanel<>(session, controller, isCompany, isAdmin);
     }
 }

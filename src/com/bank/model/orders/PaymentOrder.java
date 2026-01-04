@@ -6,19 +6,12 @@ public class PaymentOrder extends StandingOrder {
     private String paymentCode;
     private double maxAmount;
 
-    // ✅ add scheduling like TransferOrder
-    private int frequencyInMonths;
-    private int dayOfMonth;
-
     public PaymentOrder(String orderId, String title, String description, String customerId,
                         LocalDate startDate, LocalDate endDate, double fee, String chargeAccount,
-                        String paymentCode, double maxAmount,
-                        int frequencyInMonths, int dayOfMonth) {
+                        String paymentCode, double maxAmount) {
         super(orderId, title, description, customerId, startDate, endDate, fee, chargeAccount);
         this.paymentCode = paymentCode;
         this.maxAmount = maxAmount;
-        this.frequencyInMonths = frequencyInMonths;
-        this.dayOfMonth = dayOfMonth;
     }
 
     public PaymentOrder() {
@@ -35,8 +28,6 @@ public class PaymentOrder extends StandingOrder {
         StringBuilder sb = new StringBuilder(super.marshal());
         sb.append(",paymentCode:").append(paymentCode);
         sb.append(",maxAmount:").append(maxAmount);
-        sb.append(",frequencyInMonths:").append(frequencyInMonths);
-        sb.append(",dayOfMonth:").append(dayOfMonth);
         return sb.toString();
     }
 

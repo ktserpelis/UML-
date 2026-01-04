@@ -5,7 +5,7 @@ import com.bank.storage.Storable;
 import java.time.LocalDate;
 
 public abstract class StandingOrder implements Storable {
-    protected String type;
+    public String type;
     protected String orderId;
     protected String title;
     protected String description;

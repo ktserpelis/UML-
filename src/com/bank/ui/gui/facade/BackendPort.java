@@ -1,5 +1,7 @@
 package com.bank.ui.gui.facade;
 
+import com.bank.model.orders.StandingOrder;
+
 import java.util.List;
 
 public interface BackendPort<U, A, T, B> {
@@ -40,5 +42,36 @@ public interface BackendPort<U, A, T, B> {
 
     void adminPayCustomersBill(String customerIban, String billCode);
     String adminSimulateTimePassing(String dateUntil); // "YYYY-MM-DD"
+
+    // Create orders
+    String createTransferStandingOrder(String customerVat,
+                                       String title,
+                                       String description,
+                                       String chargeIban,
+                                       String creditIban,
+                                       double amount,
+                                       String startDate,
+                                       String endDate,
+                                       int frequencyInMonths,
+                                       int dayOfMonth);
+
+    String createPaymentStandingOrder(String customerVat,
+                                      String title,
+                                      String description,
+                                      String chargeIban,
+                                      String paymentCode,
+                                      double maxAmount,
+                                      String startDate,
+                                      String endDate);
+
+    List<StandingOrder> getStandingOrdersForCustomer(String customerVat);
+
+    String companyCreateBill(String issuerVat,
+                             String customerVat,
+                             double amount,
+                             String issueDate,
+                             String dueDate,
+                             String paymentCode,
+                             String billNumber);
 
 }

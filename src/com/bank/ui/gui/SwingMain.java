@@ -6,6 +6,7 @@ import com.bank.model.bills.Bill;
 import com.bank.model.statements.Statement;
 import com.bank.model.users.User;
 import com.bank.ui.gui.errors.ErrorBus;
+import com.bank.ui.gui.errors.NotificationBus;
 import com.bank.ui.gui.facade.*;
 import com.bank.ui.gui.session.AppSession;
 
@@ -30,6 +31,20 @@ public class SwingMain {
                             JOptionPane.ERROR_MESSAGE
                     )
             ));
+
+            NotificationBus.getInstance().addListener(evt -> {
+                if (!NotificationBus.EVT_NOTIFICATION.equals(evt.getPropertyName())) return;
+
+                var n = (NotificationBus.Notification) evt.getNewValue();
+
+                SwingUtilities.invokeLater(() -> JOptionPane.showMessageDialog(
+                        frame,              //  parent: το κεντρικό frame
+                        n.message(),
+                        n.title(),
+                        JOptionPane.INFORMATION_MESSAGE
+                ));
+            });
+
 
             AppSession<User, Account, Statement, Bill> session = new AppSession<>();
             session.setUsers(UserManager.getInstance().getUsers());

@@ -1,6 +1,7 @@
 package com.bank.ui.gui.views;
 
 import com.bank.ui.gui.controllers.DashboardController;
+import com.bank.ui.gui.controllers.TextAreaOutputStream;
 import com.bank.ui.gui.errors.ErrorBus;
 
 import javax.swing.*;
@@ -21,8 +22,7 @@ public class AdminPanel<User, Account, Transaction, Bill> extends JPanel {
         add(title, BorderLayout.NORTH);
 
         // Left: buttons + inputs
-        JPanel left = new JPanel();
-        left.setLayout(new GridBagLayout());
+        JPanel left = new JPanel(new GridBagLayout());
         GridBagConstraints c = new GridBagConstraints();
         c.insets = new Insets(6, 6, 6, 6);
         c.fill = GridBagConstraints.HORIZONTAL;
@@ -70,7 +70,7 @@ public class AdminPanel<User, Account, Transaction, Bill> extends JPanel {
         addField.accept("Bill Code:", billCodeField);
         addField.accept("Simulate until (yyyy-MM-dd):", dateField);
 
-        // Buttons (match your CLI numbering)
+        // Buttons
         addButton.accept("1) Show Customers", () ->
                 output.setText(controller.adminShowCustomers())
         );
@@ -115,10 +115,30 @@ public class AdminPanel<User, Account, Transaction, Bill> extends JPanel {
         });
 
         addButton.accept("11) Simulate Time Passing", () -> {
-            String log = controller.onSimulateUntilDate(dateField.getText());
-            if (!ErrorBus.getInstance().hadError()) {
-                output.setText(log);
-            }
+            output.setText("Running simulation...\n");
+
+            SwingWorker<String, Void> worker = new SwingWorker<>() {
+                @Override
+                protected String doInBackground() {
+                    return controller.adminSimulateTimePassing(dateField.getText());
+                }
+
+                @Override
+                protected void done() {
+                    try {
+                        String log = get();
+                        if (log == null || log.isBlank()) {
+                            output.setText("Simulation finished, but no output was produced.\n");
+                        } else {
+                            output.setText(log + "\nSimulation finished.\n");
+                        }
+                    } catch (Exception ex) {
+                        output.setText("Simulation failed: " + ex.getMessage());
+                    }
+                }
+            };
+
+            worker.execute();
         });
 
         // Right: output area
@@ -129,6 +149,7 @@ public class AdminPanel<User, Account, Transaction, Bill> extends JPanel {
         JScrollPane outScroll = new JScrollPane(output);
         outScroll.setPreferredSize(new Dimension(600, 400));
 
+        // ✅ IMPORTANT: add the UI to the panel
         JSplitPane split = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, left, outScroll);
         split.setResizeWeight(0.35);
         add(split, BorderLayout.CENTER);

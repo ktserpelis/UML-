@@ -7,7 +7,10 @@ import com.bank.model.accounts.Account;
 import com.bank.model.accounts.BusinessAccount;
 import com.bank.model.accounts.PersonalAccount;
 import com.bank.model.bills.Bill;
+import com.bank.model.orders.PaymentOrder;
 import com.bank.model.orders.StandingOrder;
+import com.bank.model.orders.StandingOrderFactory;
+import com.bank.model.orders.TransferOrder;
 import com.bank.model.statements.Statement;
 import com.bank.model.users.Company;
 import com.bank.model.users.Customer;
@@ -490,6 +493,153 @@ public class BackendPortImpl implements BackendPort<User, Account, Statement, Bi
 
         return captureConsoleOutput(() -> TimeSimulator.getInstance().simulateUntil(dateUntil.trim()));
     }
+
+    // CREATE STANDING ORDERS
+    @Override
+    public String createTransferStandingOrder(String customerVat,
+                                              String title,
+                                              String description,
+                                              String chargeIban,
+                                              String creditIban,
+                                              double amount,
+                                              String startDate,
+                                              String endDate,
+                                              int frequencyInMonths,
+                                              int dayOfMonth) {
+
+        if (customerVat == null || customerVat.isBlank())
+            throw new IllegalArgumentException("Missing customer VAT");
+        if (chargeIban == null || chargeIban.isBlank())
+            throw new IllegalArgumentException("Charge IBAN is empty");
+        if (creditIban == null || creditIban.isBlank())
+            throw new IllegalArgumentException("Credit IBAN is empty");
+        if (amount <= 0)
+            throw new IllegalArgumentException("Amount must be > 0");
+        if (frequencyInMonths <= 0)
+            throw new IllegalArgumentException("Frequency must be >= 1");
+        if (dayOfMonth < 1 || dayOfMonth > 28)
+            throw new IllegalArgumentException("Day of month must be 1..28");
+        if (startDate == null || startDate.isBlank() || endDate == null || endDate.isBlank())
+            throw new IllegalArgumentException("Start/End date is empty");
+
+        LocalDate s = LocalDate.parse(startDate.trim());
+        LocalDate e = LocalDate.parse(endDate.trim());
+        if (e.isBefore(s))
+            throw new IllegalArgumentException("End date cannot be before start date");
+
+        // ✅ Use Factory
+        TransferOrder order = StandingOrderFactory.createTransferOrder(
+                customerVat.trim(),
+                title == null ? "" : title.trim(),
+                description == null ? "" : description.trim(),
+                chargeIban,
+                creditIban,
+                amount,
+                s,
+                e,
+                1.2,                // default fee
+                frequencyInMonths,
+                dayOfMonth
+        );
+
+        StandingOrderManager.getInstance().addStandingOrder(order);
+        return "Created transfer standing order: " + order.getOrderId();
+    }
+
+    @Override
+    public String createPaymentStandingOrder(String customerVat,
+                                             String title,
+                                             String description,
+                                             String chargeIban,
+                                             String paymentCode,
+                                             double maxAmount,
+                                             String startDate,
+                                             String endDate) {
+
+        if (customerVat == null || customerVat.isBlank())
+            throw new IllegalArgumentException("Missing customer VAT");
+        if (chargeIban == null || chargeIban.isBlank())
+            throw new IllegalArgumentException("Charge IBAN is empty");
+        if (paymentCode == null || paymentCode.isBlank())
+            throw new IllegalArgumentException("Payment code is empty");
+        if (maxAmount <= 0)
+            throw new IllegalArgumentException("Max amount must be > 0");
+        if (startDate == null || startDate.isBlank() || endDate == null || endDate.isBlank())
+            throw new IllegalArgumentException("Start/End date is empty");
+
+        LocalDate s = LocalDate.parse(startDate.trim());
+        LocalDate e = LocalDate.parse(endDate.trim());
+        if (e.isBefore(s))
+            throw new IllegalArgumentException("End date cannot be before start date");
+
+        // ✅ Use Factory
+        PaymentOrder order = StandingOrderFactory.createPaymentOrder(
+                customerVat.trim(),
+                title == null ? "" : title.trim(),
+                description == null ? "" : description.trim(),
+                chargeIban,
+                paymentCode,
+                maxAmount,
+                s,
+                e,
+                0.3                 // default fee
+        );
+
+        StandingOrderManager.getInstance().addStandingOrder(order);
+        return "Created payment standing order: " + order.getOrderId();
+    }
+
+
+    @Override
+    public List<StandingOrder> getStandingOrdersForCustomer(String customerVat) {
+        if (customerVat == null || customerVat.isBlank()) return List.of();
+        List<StandingOrder> out = new ArrayList<>();
+        for (StandingOrder o : StandingOrderManager.getInstance().getActiveOrders()) {
+            if (o != null && customerVat.equals(o.getCustomer())) out.add(o);
+        }
+        return out;
+    }
+
+    @Override
+    public String companyCreateBill(String issuerVat,
+                                    String customerVat,
+                                    double amount,
+                                    String issueDate,
+                                    String dueDate,
+                                    String paymentCode,
+                                    String billNumber) {
+
+        if (issuerVat == null || issuerVat.isBlank())
+            throw new IllegalArgumentException("Issuer VAT is empty");
+        if (customerVat == null || customerVat.isBlank())
+            throw new IllegalArgumentException("Customer VAT is empty");
+        if (amount <= 0)
+            throw new IllegalArgumentException("Amount must be > 0");
+        if (issueDate == null || issueDate.isBlank())
+            throw new IllegalArgumentException("Issue date is empty");
+        if (dueDate == null || dueDate.isBlank())
+            throw new IllegalArgumentException("Due date is empty");
+
+        LocalDate issue = LocalDate.parse(issueDate.trim());
+        LocalDate due = LocalDate.parse(dueDate.trim());
+
+        Bill created = BillManager.getInstance().createCompanyBill(
+                "Bill",
+                paymentCode,
+                billNumber,
+                issuerVat.trim(),
+                customerVat.trim(),
+                amount,
+                issue,
+                due
+        );
+
+        // persist
+        BillManager.getInstance().storeIssuedBills();
+
+        return "Created bill:\n" + created.toString();
+    }
+
 
     // ===================== helpers =====================
 

@@ -44,6 +44,51 @@ public class BillManager {
         return instance;
     }
 
+    public Bill createCompanyBill(String type,
+                                  String paymentCode,
+                                  String billNumber,
+                                  String issuerVat,
+                                  String customerVat,
+                                  double amount,
+                                  LocalDate issueDate,
+                                  LocalDate dueDate) {
+
+        if (issuerVat == null || issuerVat.isBlank()) throw new IllegalArgumentException("Issuer VAT is empty");
+        if (customerVat == null || customerVat.isBlank()) throw new IllegalArgumentException("Customer VAT is empty");
+        if (amount <= 0) throw new IllegalArgumentException("Amount must be > 0");
+        if (issueDate == null) throw new IllegalArgumentException("Issue date is empty");
+        if (dueDate == null) throw new IllegalArgumentException("Due date is empty");
+        if (dueDate.isBefore(issueDate)) throw new IllegalArgumentException("Due date cannot be before issue date");
+
+        // generate missing codes if not provided
+        String finalPaymentCode = (paymentCode == null || paymentCode.isBlank())
+                ? ("RF" + System.currentTimeMillis())
+                : paymentCode.trim();
+
+        String finalBillNumber = (billNumber == null || billNumber.isBlank())
+                ? ("B" + issueDate.toString().replace("-", "") + "-" + System.currentTimeMillis())
+                : billNumber.trim();
+
+        String finalType = (type == null || type.isBlank()) ? "Bill" : type.trim();
+
+        Bill newBill = new Bill(finalType, finalPaymentCode, finalBillNumber,
+                issuerVat.trim(), customerVat.trim(), amount, issueDate, dueDate);
+
+        // ✅ Add to daily bills file for issueDate (so simulator can load it on that date)
+        StorableList<Bill> daily = dailyBillDAO.loadBillsForDate(issueDate);
+        daily.add(newBill);
+        dailyBillDAO.saveBillsForDate(issueDate, daily);
+
+        // ✅ Add to issued bills now (so GUI company sees it immediately)
+        if (!alreadyIssued(newBill)) {
+            issuedBills.add(newBill);
+            storeIssuedBills();
+        }
+
+        return newBill;
+    }
+
+
     public void loadBillsOnDate(LocalDate date) {
         bills.clear();
         bills.addAll(dailyBillDAO.loadBillsForDate(date));

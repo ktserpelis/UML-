@@ -1,6 +1,9 @@
 package com.bank.ui.gui.facade;
 
+import com.bank.model.orders.StandingOrder;
 import com.bank.ui.gui.session.AppSession;
+
+import java.util.List;
 
 public interface BankFacade<U,A,T,B> {
     void onUserSelected(U user, AppSession<U,A,T,B> session);
@@ -35,5 +38,35 @@ public interface BankFacade<U,A,T,B> {
     String adminListStandingOrders();
 
     void adminPayCustomersBill(String customerIban, String billCode);
-    void adminSimulateTimePassing(String dateUntil);
+    String adminSimulateTimePassing(String dateUntil);
+
+    void logout();
+
+    String createTransferStandingOrder(String title,
+                                       String description,
+                                       String chargeIban,
+                                       String creditIban,
+                                       double amount,
+                                       String startDate,
+                                       String endDate,
+                                       int frequencyInMonths,
+                                       int dayOfMonth);
+
+    String createPaymentStandingOrder(String title,
+                                      String description,
+                                      String chargeIban,
+                                      String paymentCode,
+                                      double maxAmount,
+                                      String startDate,
+                                      String endDate);
+
+    List<StandingOrder> getMyStandingOrders();
+
+    String companyCreateBill(String customerVat,
+                             String amountText,
+                             String issueDate,
+                             String dueDate,
+                             String paymentCode,
+                             String billNumber);
+
 }
